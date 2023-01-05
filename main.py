@@ -7,8 +7,7 @@ import time
 
 #sounds
 sound = pyglet.media.load("bubble_pop.wav", streaming=False)
-left_sound = pyglet.media.load("left.wav", streaming=False)
-right_sound = pyglet.media.load("right.wav", streaming=False)
+
 
 cap = cv2.VideoCapture(0)
 #size of board for text
@@ -19,14 +18,12 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 # keyboard settings
-keyboard = np.zeros((300, 500, 3), np.uint8) #keyboard size
+keyboard = np.zeros((405, 802, 3), np.uint8) #keyboard size
 
-keys_set_1 = {0: "Q", 1: "W", 2: "E", 3: "R", 4: "T",
-              5: "A", 6: "S", 7: "D", 8: "F", 9: "G",
-              10: "Z", 11: "X", 12: "C", 13: "V", 14: "<"}
-keys_set_2 = {0: "Y", 1: "U", 2: "I", 3: "O", 4: "P",
-              5: "H", 6: "J", 7: "K", 8: "L", 9: "_",
-              10: "V", 11: "B", 12: "N", 13: "M", 14: "<"}
+keys_set_1 = {0: "Q", 1: "W", 2: "E", 3: "R", 4: "T", 5: "Y", 6: "U", 7: "I",
+              8: "O", 9: "P", 10: "A", 11: "S", 12: "D", 13: "F", 14: "G", 15: "H",
+              16: "J",17: "K",18: "L",19: "Z",20: "X",21: "C",22: "V",23: "B",
+              24: "N",25: "M",26: "YES",27: "NO",28: "EAT",29: "REST"}
 
 def letter(letter_index, text, letter_light):
     # Keys
@@ -46,35 +43,82 @@ def letter(letter_index, text, letter_light):
         x=400
         y=0
     elif letter_index == 5:
-        x=0
-        y=100
+        x=500
+        y=0
     elif letter_index == 6:
-        x=100
-        y=100
+        x=600
+        y=0
     elif letter_index == 7:
-        x=200
-        y=100
+        x=700
+        y=0
     elif letter_index == 8:
-        x=300
+        x=0
         y=100
     elif letter_index == 9:
-        x=400
+        x=100
         y=100
     elif letter_index == 10:
+        x=200
+        y=100
+    elif letter_index == 11:
+        x=300
+        y=100
+    elif letter_index == 12:
+        x=400
+        y=100
+    elif letter_index == 13:
+        x=500
+        y=100
+    elif letter_index == 14:
+        x=600
+        y=100
+    elif letter_index == 15:
+        x=700
+        y=100
+    elif letter_index == 16:
         x=0
         y=200
-    elif letter_index == 11:
+    elif letter_index == 17:
         x=100
         y=200
-    elif letter_index == 12:
+    elif letter_index == 18:
         x=200
         y=200
-    elif letter_index == 13:
+    elif letter_index == 19:
         x=300
         y=200
-    elif letter_index == 14:
+    elif letter_index == 20:
         x=400
         y=200
+    elif letter_index == 21:
+        x=500
+        y=200
+    elif letter_index == 22:
+        x=600
+        y=200
+    elif letter_index == 23:
+        x=700
+        y=200
+    elif letter_index == 24:
+        x=0
+        y=300
+    elif letter_index == 25:
+        x=100
+        y=300
+    elif letter_index == 26:
+        x=225
+        y=300
+    elif letter_index == 27:
+        x=353
+        y=300
+    elif letter_index == 28:
+        x=475
+        y=300
+    elif letter_index == 29:
+        x=650
+        y=300
+
+
 
     width = 100
     height =100
@@ -97,13 +141,7 @@ def letter(letter_index, text, letter_light):
         cv2.rectangle(keyboard, (x + th, y + th), (x + width - th, y + height - th), (51, 51, 51), -1)
         cv2.putText(keyboard, text, (text_x, text_y), font_letter, font_scale, (255, 255, 255), font_th)
 
-def draw_menu():
-    rows, cols, _ = keyboard.shape
-    th_lines = 4 # thickness lines
-    cv2.line(keyboard, (int(cols/2) - int(th_lines/2), 0),(int(cols/2) - int(th_lines/2), rows),
-             (51, 51, 51), th_lines)
-    cv2.putText(keyboard, "LEFT", (30, 200), font, 2, (255, 255, 255), 4)
-    cv2.putText(keyboard, "RIGHT", (20 + int(cols/2), 200), font, 2, (255, 255, 255), 4)
+
 
 def midpoint(p1 ,p2):
     return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
@@ -205,14 +243,11 @@ while True:
     # Draw a white space for loading bar
     frame[rows - 50: rows, 0: cols] = (255, 255, 255)
 
-    if select_keyboard_menu is True:
-        draw_menu()
+
 
         # Keyboard selected
-    if keyboard_selected == "left":
-        keys_set = keys_set_1
-    else:
-        keys_set = keys_set_2
+
+    keys_set = keys_set_1
     active_letters = keys_set[letter_index]
 
     #face detection
@@ -284,20 +319,20 @@ while True:
                     if active_letters == "_":
                         text += " "
                     sound.play()
-                    select_keyboard_menu = True
+
                     # time.sleep(1)
 
             else:
                 blinking_frames = 0
 
-            # Display letters on the keyboard
-        if select_keyboard_menu is False:
+            # Display active-letters on the keyboard
+
             if frames == frames_active_letter:
                 letter_index += 1
                 frames = 0
-            if letter_index == 15:
+            if letter_index == 30:
                 letter_index = 0
-            for i in range(15):
+            for i in range(30):
                 if i == letter_index:
                     light = True
                 else:
