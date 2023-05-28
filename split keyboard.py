@@ -6,6 +6,8 @@ import tkinter as tk
 import pyglet
 import time
 
+#sounds
+sound = pyglet.media.load("bubble_pop.wav", streaming=False)
 # Create a Tkinter window
 window = tk.Tk()
 
@@ -325,6 +327,7 @@ while True:
                         text += active_letters
                     if active_letters == "_":
                         text += " "
+                    sound.play()
 
                     select_keyboard_menu = True
                     # time.sleep(1)
