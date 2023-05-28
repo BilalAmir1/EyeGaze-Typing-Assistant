@@ -12,7 +12,7 @@ sound = pyglet.media.load("bubble_pop.wav", streaming=False)
 
 cap = cv2.VideoCapture(0)
 #size of board for text
-board = np.zeros((400, 700), np.uint8)
+board = np.zeros((400, 1350), np.uint8)
 board[:] = 255
 
 detector = dlib.get_frontal_face_detector()
@@ -24,7 +24,7 @@ keyboard = np.zeros((405, 802, 3), np.uint8) #keyboard size
 keys_set_1 = {0: "Q", 1: "W", 2: "E", 3: "R", 4: "T", 5: "Y", 6: "U", 7: "I",
               8: "O", 9: "P", 10: "A", 11: "S", 12: "D", 13: "F", 14: "G", 15: "H",
               16: "J",17: "K",18: "L",19: "Z",20: "X",21: "C",22: "V",23: "B",
-              24: "N",25: "M",26: " YES ",27: " NO ",28: "EAT",29: "REST"}
+              24: "N",25: "M",26: " YES ",27: " NO ",28: " EAT ",29: " REST "}
 messages = []
 def add_message(message):
   messages.append(message)
@@ -138,8 +138,8 @@ def letter(letter_index, text, letter_light):
     th = 2  # thickness
 
     # Text settings
-    font_letter = cv2.FONT_HERSHEY_PLAIN
-    font_scale = 5
+    font_letter = cv2.FONT_HERSHEY_COMPLEX
+    font_scale = 1
     font_th = 2
     text_size = cv2.getTextSize(text, font_letter, font_scale, font_th)[0]
     width_text, height_text = text_size[0], text_size[1]
@@ -387,7 +387,7 @@ while True:
                 letter(i, keys_set[i], light)
 
             # Show the text we're writing on the board
-        cv2.putText(board, text, (80, 100), font, 2, 0, 3)
+        cv2.putText(board, text, (10, 50), font, 1, 0, 2)
 
         elapsed_time = time.time() - start_time
         cv2.putText(frame, "Time passed in sec: {:.2f}".format(elapsed_time), (5, 20), cv2.FONT_HERSHEY_DUPLEX, 0.7, (0, 0, 0), 1)
