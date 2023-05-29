@@ -4,6 +4,7 @@ import dlib
 from math import hypot
 import pyglet
 import time
+import pyttsx3
 
 
 #sounds
@@ -14,6 +15,7 @@ cap = cv2.VideoCapture(0)
 #size of board for text
 board = np.zeros((400, 1350), np.uint8)
 board[:] = 255
+
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -35,9 +37,26 @@ def save_messages():
       f.write(message + "\n")
 
 def read_messages():
-  with open("messages.txt", "r") as f:
-    for line in f:
-      print(line)
+    # Initialize the pyttsx3 engine
+    engine = pyttsx3.init()
+
+    with open("messages.txt", "r") as f:
+        for line in f:
+            # Remove leading/trailing whitespace and newline characters
+            line = line.strip()
+
+            # Skip empty lines
+            if not line:
+                continue
+
+            # Print the line to the console
+            print(line)
+
+            # Convert the line to speech
+            engine.say(line)
+
+    # Play the speech
+    engine.runAndWait()
 def letter(letter_index, text, letter_light):
     # Keys
     if letter_index == 0:
@@ -401,13 +420,12 @@ while True:
         cv2.imshow("Frame", frame)
         cv2.imshow("Virtual keyboard", keyboard)
         cv2.imshow("Board", board)
-        read_messages()
 
 
     key = cv2.waitKey(1)
     if key == 27:
         break
-
+read_messages()
 # sys.exit()
 cap.release()
 cv2.destroyAllWindows()

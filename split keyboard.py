@@ -5,15 +5,40 @@ from math import hypot
 import tkinter as tk
 import pyglet
 import time
+import pyttsx3
 
+messages = []
+def add_message(message):
+  messages.append(message)
+
+def save_messages():
+  with open("messages.txt", "+w") as f:
+    for message in messages:
+      f.write(message + "\n")
+
+def read_messages():
+    # Initialize the pyttsx3 engine
+    engine = pyttsx3.init()
+
+    with open("messages.txt", "r") as f:
+        for line in f:
+            # Remove leading/trailing whitespace and newline characters
+            line = line.strip()
+
+            # Skip empty lines
+            if not line:
+                continue
+
+            # Print the line to the console
+            print(line)
+
+            # Convert the line to speech
+            engine.say(line)
+
+    # Play the speech
+    engine.runAndWait()
 #sounds
 sound = pyglet.media.load("bubble_pop.wav", streaming=False)
-# Create a Tkinter window
-window = tk.Tk()
-
-# Create a label to display the video feed
-label = tk.Label(window)
-label.pack()
 
 cap = cv2.VideoCapture(0)
 #size of board for text
@@ -327,6 +352,9 @@ while True:
                         text += active_letters
                     if active_letters == "_":
                         text += " "
+                    #saving the text in the file name = messages.txt
+                    add_message(text)
+                    save_messages()
                     sound.play()
 
                     select_keyboard_menu = True
@@ -364,6 +392,6 @@ while True:
     key = cv2.waitKey(1)
     if key == 27:
         break
-
+read_messages()
 cap.release()
 cv2.destroyAllWindows()
