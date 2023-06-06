@@ -54,12 +54,12 @@ keyboard = np.zeros((405, 802, 3), np.uint8) #keyboard size
 keys_set_1 = {0: "Q", 1: "W", 2: "E", 3: "R", 4: "T", 5: "Y", 6: "U", 7: "I",
               8: "O", 9: "P", 10: "A", 11: "S", 12: "D", 13: "F", 14: "G", 15: "H",
               16: "J",17: "K",18: "L",19: "Z",20: "X",21: "C",22: "V",23: "B",
-              24: "N",25: "M", 26: " ", 27: "menu"}
+              24: "N",25: "M", 26: "<-", 27: " ", 28: "menu"}
 keys_set_2 = {0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
               5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
               10: "|", 11: "!", 12: "@", 13: "#", 14: "$", 15: "%",
               16: "^",17: "&",18: "*",19: "+",20: "-",21: "_",22: "=",23: ".",
-              24: ",",25: "?", 26: " ", 27: "menu"}
+              24: ",",25: "?", 26: "<-", 27: " ", 28: "menu"}
 
 def letter(letter_index, text, letter_light):
     # Keys
@@ -146,6 +146,9 @@ def letter(letter_index, text, letter_light):
         y=300
     elif letter_index == 27:
         x=300
+        y=300
+    elif letter_index == 28:
+        x=400
         y=300
 
     width = 100
@@ -316,7 +319,7 @@ while True:
                 keyboard_selected = "right"
                 keyboard_selection_frames += 1
                 # If Kept gaze on one side more than 15 frames, move to keyboard
-                if keyboard_selection_frames == 28:
+                if keyboard_selection_frames == 29:
                     select_keyboard_menu = False
 
                     # Set frames count to 0 when keyboard selected
@@ -329,7 +332,7 @@ while True:
                 keyboard_selected = "left"
                 keyboard_selection_frames += 1
                 # If Kept gaze on one side more than 15 frames, move to keyboard
-                if keyboard_selection_frames == 28:
+                if keyboard_selection_frames == 29:
                     select_keyboard_menu = False
 
                     # Set frames count to 0 when keyboard selected
@@ -351,10 +354,16 @@ while True:
 
                 # Typing letter
                 if blinking_frames == frames_to_blink:
-                    if active_letters != "menu" and active_letters != "_":
+                    if active_letters != "menu" and active_letters != "<-":
                         text += active_letters
-                    if active_letters == "_":
-                        text += " "
+                    if active_letters == "<-":
+                        (text_width, text_height), _ = cv2.getTextSize(text, font, 1, 2)
+                        character_index = len(text) - 1  # Index of the last character
+                        # Calculate the starting and ending positions of the character to erase
+                        x_start = 8 + int(text_width / len(text) * character_index)
+                        x_end = 8 + int(text_width / len(text) * (character_index + 1))
+                        # Overwrite the character with the background color
+                        cv2.rectangle(board, (x_start, 50 - text_height), (x_end, 50), 0, -1)
                     #saving the text in the file name = messages.txt
                     add_message(text)
                     save_messages()
@@ -371,9 +380,9 @@ while True:
             if frames == frames_active_letter:
                 letter_index += 1
                 frames = 0
-            if letter_index == 28:
+            if letter_index == 29:
                 letter_index = 0
-            for i in range(28):
+            for i in range(29):
                 if i == letter_index:
                     light = True
                 else:
