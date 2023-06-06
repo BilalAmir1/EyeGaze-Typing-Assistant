@@ -2,31 +2,11 @@ import cv2
 import numpy as np
 import dlib
 from math import hypot
+import tkinter as tk
 import pyglet
 import time
 import pyttsx3
 
-
-#sounds
-sound = pyglet.media.load("bubble_pop.wav", streaming=False)
-
-
-cap = cv2.VideoCapture(0)
-#size of board for text
-board = np.zeros((400, 1350), np.uint8)
-board[:] = 255
-
-
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-
-# keyboard settings
-keyboard = np.zeros((405, 802, 3), np.uint8) #keyboard size
-
-keys_set_1 = {0: "Q", 1: "W", 2: "E", 3: "R", 4: "T", 5: "Y", 6: "U", 7: "I",
-              8: "O", 9: "P", 10: "A", 11: "S", 12: "D", 13: "F", 14: "G", 15: "H",
-              16: "J",17: "K",18: "L",19: "Z",20: "X",21: "C",22: "V",23: "B",
-              24: "N",25: "M",26: " YES ",27: " NO ",28: " EAT ",29: " REST "}
 messages = []
 def add_message(message):
   messages.append(message)
@@ -57,6 +37,30 @@ def read_messages():
 
     # Play the speech
     engine.runAndWait()
+#sounds
+sound = pyglet.media.load("bubble_pop.wav", streaming=False)
+
+cap = cv2.VideoCapture(0)
+#size of board for text
+board = np.zeros((400, 1350), np.uint8)
+board[:] = 255
+
+detector = dlib.get_frontal_face_detector()
+predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+# keyboard settings
+keyboard = np.zeros((405, 802, 3), np.uint8) #keyboard size
+
+keys_set_1 = {0: "Q", 1: "W", 2: "E", 3: "R", 4: "T", 5: "Y", 6: "U", 7: "I",
+              8: "O", 9: "P", 10: "A", 11: "S", 12: "D", 13: "F", 14: "G", 15: "H",
+              16: "J",17: "K",18: "L",19: "Z",20: "X",21: "C",22: "V",23: "B",
+              24: "N",25: "M", 26: " ", 27: "menu"}
+keys_set_2 = {0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
+              5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
+              10: "|", 11: "!", 12: "@", 13: "#", 14: "$", 15: "%",
+              16: "^",17: "&",18: "*",19: "+",20: "-",21: "_",22: "=",23: ".",
+              24: ",",25: "?", 26: " ", 27: "menu"}
+
 def letter(letter_index, text, letter_light):
     # Keys
     if letter_index == 0:
@@ -138,26 +142,18 @@ def letter(letter_index, text, letter_light):
         x=100
         y=300
     elif letter_index == 26:
-        x=225
+        x=200
         y=300
     elif letter_index == 27:
-        x=353
+        x=300
         y=300
-    elif letter_index == 28:
-        x=475
-        y=300
-    elif letter_index == 29:
-        x=650
-        y=300
-
-
 
     width = 100
     height =100
     th = 2  # thickness
 
     # Text settings
-    font_letter = cv2.FONT_HERSHEY_COMPLEX
+    font_letter = cv2.FONT_HERSHEY_TRIPLEX
     font_scale = 1
     font_th = 2
     text_size = cv2.getTextSize(text, font_letter, font_scale, font_th)[0]
@@ -173,15 +169,18 @@ def letter(letter_index, text, letter_light):
         cv2.rectangle(keyboard, (x + th, y + th), (x + width - th, y + height - th), (51, 51, 51), -1)
         cv2.putText(keyboard, text, (text_x, text_y), font_letter, font_scale, (255, 255, 255), font_th)
 
-
+def draw_menu():
+    rows, cols, _ = keyboard.shape
+    th_lines = 4 # thickness lines
+    cv2.line(keyboard, (int(cols/2) - int(th_lines/2), 0),(int(cols/2) - int(th_lines/2), rows),
+             (51, 51, 51), th_lines)
+    cv2.putText(keyboard, "Alphabets", (60, 200), font, 2, (255, 255, 255), 4)
+    cv2.putText(keyboard, "Numbers", (50 + int(cols/2), 200), font, 2, (255, 255, 255), 4)
 
 def midpoint(p1 ,p2):
     return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
 
 font = cv2.FONT_HERSHEY_SIMPLEX
-
-
-
 
 def get_blinking_ratio(eye_points, facial_landmarks):
     left_point = (facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y)
@@ -258,7 +257,6 @@ letter_index = 0
 blinking_frames = 0
 frames_to_blink = 6
 frames_active_letter = 8
-start_time = time.time()
 
 # Text and keyboard settings
 text = ""
@@ -279,11 +277,14 @@ while True:
     # Draw a white space for loading bar
     frame[rows - 50: rows, 0: cols] = (255, 255, 255)
 
-
+    if select_keyboard_menu is True:
+        draw_menu()
 
         # Keyboard selected
-
-    keys_set = keys_set_1
+    if keyboard_selected == "left":
+        keys_set = keys_set_1
+    else:
+        keys_set = keys_set_2
     active_letters = keys_set[letter_index]
 
     #face detection
@@ -300,15 +301,10 @@ while True:
         left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks)
         right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks)
         blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
-        if blinking_ratio > 5.7:
-            eyes_closed = True
-        else:
-            eyes_closed = False
 
         # Eyes color
         cv2.polylines(frame, [left_eye], True, (0, 0, 255), 2)
         cv2.polylines(frame, [right_eye], True, (0, 0, 255), 2)
-
 
         if select_keyboard_menu is True:
             # Detecting gaze to select Left or Right keybaord
@@ -319,11 +315,9 @@ while True:
             if gaze_ratio <= 0.9:
                 keyboard_selected = "right"
                 keyboard_selection_frames += 1
-
                 # If Kept gaze on one side more than 15 frames, move to keyboard
-                if keyboard_selection_frames == 15:
+                if keyboard_selection_frames == 28:
                     select_keyboard_menu = False
-                    print("right")
 
                     # Set frames count to 0 when keyboard selected
                     frames = 0
@@ -335,7 +329,7 @@ while True:
                 keyboard_selected = "left"
                 keyboard_selection_frames += 1
                 # If Kept gaze on one side more than 15 frames, move to keyboard
-                if keyboard_selection_frames == 15:
+                if keyboard_selection_frames == 28:
                     select_keyboard_menu = False
 
                     # Set frames count to 0 when keyboard selected
@@ -357,48 +351,29 @@ while True:
 
                 # Typing letter
                 if blinking_frames == frames_to_blink:
-                    if active_letters != "<" and active_letters != "_":
+                    if active_letters != "menu" and active_letters != "_":
                         text += active_letters
                     if active_letters == "_":
                         text += " "
-                    #saving what is written on a file named message.txt
+                    #saving the text in the file name = messages.txt
                     add_message(text)
                     save_messages()
                     sound.play()
 
+                    select_keyboard_menu = True
                     # time.sleep(1)
 
             else:
                 blinking_frames = 0
 
-                # # active letter location using gaze
-                # gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
-                # gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks)
-                # gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
-                #
-                # if gaze_ratio <= 0.9:
-                #     for i in range(30):
-                #         if i == 8:
-                #             light = True
-                #         else:
-                #             light = False
-                #         letter(i, keys_set[i], light)
-                #     print("right")
-                # elif gaze_ratio >= 1.9:
-                #     for i in range(30):
-                #         if i == 8:
-                #             light = True
-                #         else:
-                #             light = False
-                #         letter(i, keys_set[i], light)
-                #         print("left")
-            # Display active-letters on the keyboard
+            # Display letters on the keyboard
+        if select_keyboard_menu is False:
             if frames == frames_active_letter:
                 letter_index += 1
                 frames = 0
-            if letter_index == 30:
+            if letter_index == 28:
                 letter_index = 0
-            for i in range(30):
+            for i in range(28):
                 if i == letter_index:
                     light = True
                 else:
@@ -406,26 +381,20 @@ while True:
                 letter(i, keys_set[i], light)
 
             # Show the text we're writing on the board
-        cv2.putText(board, text, (10, 50), font, 1, 0, 2)
-
-        elapsed_time = time.time() - start_time
-        cv2.putText(frame, "Time passed in sec: {:.2f}".format(elapsed_time), (5, 20), cv2.FONT_HERSHEY_DUPLEX, 0.7, (0, 0, 0), 1)
+        cv2.putText(board, text, (8, 50), font, 1, 0, 2)
 
         # Blinking loading bar
         percentage_blinking = blinking_frames / frames_to_blink
         loading_x = int(cols * percentage_blinking)
         cv2.rectangle(frame, (0, rows - 50), (loading_x, rows), (51, 51, 51), -1)
 
-
         cv2.imshow("Frame", frame)
         cv2.imshow("Virtual keyboard", keyboard)
         cv2.imshow("Board", board)
-
 
     key = cv2.waitKey(1)
     if key == 27:
         break
 read_messages()
-# sys.exit()
 cap.release()
 cv2.destroyAllWindows()
