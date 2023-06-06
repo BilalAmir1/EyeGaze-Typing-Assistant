@@ -42,7 +42,7 @@ sound = pyglet.media.load("bubble_pop.wav", streaming=False)
 
 cap = cv2.VideoCapture(0)
 #size of board for text
-board = np.zeros((400, 1350), np.uint8)
+board = np.zeros((300, 1350), np.uint8)
 board[:] = 255
 
 detector = dlib.get_frontal_face_detector()
@@ -267,10 +267,12 @@ keyboard_selected = "left"
 last_keyboard_selected = "left"
 select_keyboard_menu = True
 keyboard_selection_frames = 0
+background = cv2.imread("pic.jpg")
+background = cv2.resize(background, (1780, 720))
 
 while True:
     _, frame = cap.read()
-    # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
+    frame = cv2.resize(frame, (590, 400))
     rows, cols, _ = frame.shape
     keyboard[:] = (26,26,26)
     frames += 1
@@ -397,9 +399,18 @@ while True:
         loading_x = int(cols * percentage_blinking)
         cv2.rectangle(frame, (0, rows - 50), (loading_x, rows), (51, 51, 51), -1)
 
-        cv2.imshow("Frame", frame)
-        cv2.imshow("Virtual keyboard", keyboard)
-        cv2.imshow("Board", board)
+        # cv2.imshow("Frame", frame)
+        # cv2.imshow("Board", board)
+        # cv2.imshow("Virtual keyboard", keyboard)
+        # adjusting the video frame in the background
+        background[5:5 + 400, 810:810 + 590] = frame
+        # adjusting the board in the background
+        board_color = cv2.cvtColor(board, cv2.COLOR_GRAY2BGR)
+        background[410:410 + board_color.shape[0], 5:5 + board_color.shape[1]] = board_color
+        # adjusting the video frame in the background
+        background[5:5 + 405, 5:5 + 802] = keyboard
+        # background size = 1780, 720
+        cv2.imshow("Adjusted Frames", background)
 
     key = cv2.waitKey(1)
     if key == 27:
